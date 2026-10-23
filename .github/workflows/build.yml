@@ -1,0 +1,34 @@
+name: Build DeskWidgets
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      # Versão completa: roda em qualquer Windows 10/11 sem instalar nada
+      - name: Publicar (autocontido)
+        run: dotnet publish DeskWidgets.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishReadyToRun=true -o publish/completo
+
+      # Versão leve: precisa do ".NET 10 Desktop Runtime" instalado
+      - name: Publicar (leve)
+        run: dotnet publish DeskWidgets.csproj -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -o publish/leve
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DeskWidgets-completo-win-x64
+          path: publish/completo/DeskWidgets.exe
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DeskWidgets-leve-win-x64
+          path: publish/leve/DeskWidgets.exe

@@ -1,0 +1,256 @@
+<Window x:Class="DeskWidgets.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Configurações do DeskWidgets"
+        Icon="Assets/app.ico"
+        Width="500" Height="760" MinWidth="420" MinHeight="420"
+        Background="#16161B" Foreground="#ECECF1"
+        WindowStartupLocation="CenterScreen"
+        FontFamily="Segoe UI Variable Text, Segoe UI" FontSize="13">
+
+    <Window.Resources>
+        <Style x:Key="Section" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="17"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,26,0,10"/>
+        </Style>
+        <Style x:Key="Label" TargetType="TextBlock">
+            <Setter Property="Opacity" Value="0.72"/>
+            <Setter Property="Margin" Value="0,10,0,5"/>
+        </Style>
+        <Style x:Key="Hint" TargetType="TextBlock">
+            <Setter Property="Opacity" Value="0.55"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="Margin" Value="0,4,0,0"/>
+        </Style>
+
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="#ECECF1"/>
+            <Setter Property="Margin" Value="0,5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="#24242C"/>
+            <Setter Property="Foreground" Value="#ECECF1"/>
+            <Setter Property="BorderBrush" Value="#3A3A46"/>
+            <Setter Property="CaretBrush" Value="#ECECF1"/>
+            <Setter Property="Padding" Value="6,4"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style TargetType="Button">
+            <Setter Property="Foreground" Value="#ECECF1"/>
+            <Setter Property="Background" Value="#2A2A33"/>
+            <Setter Property="Padding" Value="14,7"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#383844"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#44444F"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PlainButton" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <ContentPresenter/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SwatchButton" TargetType="Button">
+            <Setter Property="Width" Value="30"/>
+            <Setter Property="Height" Value="26"/>
+            <Setter Property="Margin" Value="8,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="ToolTip" Value="Escolher cor"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="5" BorderBrush="#66FFFFFF" BorderThickness="1"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <DockPanel>
+        <Border DockPanel.Dock="Bottom" Background="#1D1D24" Padding="20,12">
+            <DockPanel>
+                <Button DockPanel.Dock="Right" Content="Fechar" Click="Close_Click"/>
+                <Button Content="Restaurar aparência padrão" Click="Reset_Click" HorizontalAlignment="Left"/>
+            </DockPanel>
+        </Border>
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="24,0,24,24">
+
+                <!-- ========== Cores ========== -->
+                <TextBlock Style="{StaticResource Section}" Text="Cores"/>
+                <WrapPanel x:Name="PalettePanel"/>
+
+                <Grid Margin="0,14,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="110"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="36"/>
+                        <RowDefinition Height="36"/>
+                        <RowDefinition Height="36"/>
+                        <RowDefinition Height="36"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Text="Topo do gradiente" VerticalAlignment="Center"/>
+                    <Button Grid.Row="0" Grid.Column="1" x:Name="TopSwatch" Tag="Top" Style="{StaticResource SwatchButton}" Click="Swatch_Click"/>
+                    <TextBox Grid.Row="0" Grid.Column="2" x:Name="TopHex" Tag="Top" Height="28" TextChanged="Hex_TextChanged"/>
+
+                    <TextBlock Grid.Row="1" Text="Base do gradiente" VerticalAlignment="Center"/>
+                    <Button Grid.Row="1" Grid.Column="1" x:Name="BottomSwatch" Tag="Bottom" Style="{StaticResource SwatchButton}" Click="Swatch_Click"/>
+                    <TextBox Grid.Row="1" Grid.Column="2" x:Name="BottomHex" Tag="Bottom" Height="28" TextChanged="Hex_TextChanged"/>
+
+                    <TextBlock Grid.Row="2" Text="Destaque (dia de hoje, checklist)" VerticalAlignment="Center"/>
+                    <Button Grid.Row="2" Grid.Column="1" x:Name="AccentSwatch" Tag="Accent" Style="{StaticResource SwatchButton}" Click="Swatch_Click"/>
+                    <TextBox Grid.Row="2" Grid.Column="2" x:Name="AccentHex" Tag="Accent" Height="28" TextChanged="Hex_TextChanged"/>
+
+                    <TextBlock Grid.Row="3" Text="Texto" VerticalAlignment="Center"/>
+                    <Button Grid.Row="3" Grid.Column="1" x:Name="TextSwatch" Tag="Text" Style="{StaticResource SwatchButton}" Click="Swatch_Click"/>
+                    <TextBox Grid.Row="3" Grid.Column="2" x:Name="TextHex" Tag="Text" Height="28" TextChanged="Hex_TextChanged"/>
+                </Grid>
+
+                <TextBlock Style="{StaticResource Label}" Text="Direção do gradiente"/>
+                <ComboBox x:Name="DirectionBox" SelectionChanged="Direction_Changed">
+                    <ComboBoxItem Content="Vertical (de cima para baixo)" Tag="Vertical"/>
+                    <ComboBoxItem Content="Horizontal" Tag="Horizontal"/>
+                    <ComboBoxItem Content="Diagonal" Tag="Diagonal"/>
+                </ComboBox>
+
+                <DockPanel Margin="0,14,0,4">
+                    <TextBlock x:Name="OpacityValue" DockPanel.Dock="Right" Opacity="0.72"/>
+                    <TextBlock Text="Opacidade do fundo"/>
+                </DockPanel>
+                <Slider x:Name="OpacitySlider" Minimum="0" Maximum="100" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="Opacity_Changed"/>
+                <TextBlock Style="{StaticResource Hint}" Text="Em 0% só o texto e os ícones aparecem sobre o papel de parede."/>
+
+                <DockPanel Margin="0,14,0,4">
+                    <TextBlock x:Name="RadiusValue" DockPanel.Dock="Right" Opacity="0.72"/>
+                    <TextBlock Text="Arredondamento dos cantos"/>
+                </DockPanel>
+                <Slider x:Name="RadiusSlider" Minimum="0" Maximum="28" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="Radius_Changed"/>
+
+                <!-- ========== Tamanho e posição ========== -->
+                <TextBlock Style="{StaticResource Section}" Text="Tamanho e posição"/>
+                <DockPanel Margin="0,0,0,4">
+                    <TextBlock x:Name="ScaleValue" DockPanel.Dock="Right" Opacity="0.72"/>
+                    <TextBlock Text="Tamanho do widget"/>
+                </DockPanel>
+                <Slider x:Name="ScaleSlider" Minimum="50" Maximum="250" TickFrequency="5" IsSnapToTickEnabled="True" ValueChanged="Scale_Changed"/>
+                <TextBlock Style="{StaticResource Hint}" Text="Também dá para usar Ctrl + roda do mouse em cima do widget. Arraste qualquer bloco para mover."/>
+
+                <TextBlock Style="{StaticResource Label}" Text="Camada"/>
+                <ComboBox x:Name="ZModeBox" SelectionChanged="ZMode_Changed">
+                    <ComboBoxItem Content="Fixo na área de trabalho (atrás das janelas)" Tag="Desktop"/>
+                    <ComboBoxItem Content="Janela comum" Tag="Normal"/>
+                    <ComboBoxItem Content="Sempre visível (por cima de tudo)" Tag="Topmost"/>
+                </ComboBox>
+                <CheckBox x:Name="LockCheck" Content="Travar posição" Margin="0,12,0,5" Click="Lock_Click"/>
+                <CheckBox x:Name="StartupCheck" Content="Iniciar com o Windows" Click="Startup_Click"/>
+
+                <!-- ========== Relógio ========== -->
+                <TextBlock Style="{StaticResource Section}" Text="Relógio"/>
+                <TextBlock Style="{StaticResource Label}" Text="Fonte" Margin="0,0,0,5"/>
+                <ComboBox x:Name="FontBox" SelectionChanged="Font_Changed" IsTextSearchEnabled="True"/>
+                <Border Background="#22222A" CornerRadius="8" Margin="0,8,0,0" Padding="10,4">
+                    <TextBlock x:Name="FontPreview" Text="10:22" FontSize="44" HorizontalAlignment="Center"/>
+                </Border>
+
+                <DockPanel Margin="0,14,0,4">
+                    <TextBlock x:Name="ClockSizeValue" DockPanel.Dock="Right" Opacity="0.72"/>
+                    <TextBlock Text="Tamanho da hora"/>
+                </DockPanel>
+                <Slider x:Name="ClockSizeSlider" Minimum="28" Maximum="140" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="ClockSize_Changed"/>
+
+                <CheckBox x:Name="BoldCheck" Content="Negrito" Margin="0,10,0,5" Click="ClockOptions_Click"/>
+                <CheckBox x:Name="H24Check" Content="Formato 24 horas" Click="ClockOptions_Click"/>
+                <CheckBox x:Name="SecondsCheck" Content="Mostrar segundos" Click="ClockOptions_Click"/>
+                <TextBlock Style="{StaticResource Hint}" Text="Com segundos o relógio atualiza 1 vez por segundo; sem eles, 1 vez por minuto."/>
+
+                <TextBlock Style="{StaticResource Label}" Text="Idioma da data e do calendário"/>
+                <ComboBox x:Name="CultureBox" SelectionChanged="Culture_Changed">
+                    <ComboBoxItem Content="Português (Brasil)" Tag="pt-BR"/>
+                    <ComboBoxItem Content="English (US)" Tag="en-US"/>
+                    <ComboBoxItem Content="Español" Tag="es-ES"/>
+                </ComboBox>
+
+                <!-- ========== Clima ========== -->
+                <TextBlock Style="{StaticResource Section}" Text="Clima"/>
+                <TextBlock x:Name="CurrentCity" Margin="0,0,0,8"/>
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" Content="Buscar" Margin="8,0,0,0" Click="Search_Click"/>
+                    <TextBox x:Name="CityBox" KeyDown="CityBox_KeyDown"/>
+                </DockPanel>
+                <TextBlock x:Name="SearchStatus" Style="{StaticResource Hint}"/>
+                <ListBox x:Name="CityResults" Visibility="Collapsed" MaxHeight="180" Margin="0,6,0,0"
+                         Background="#24242C" BorderBrush="#3A3A46" SelectionChanged="CityResults_SelectionChanged">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Display}" Foreground="#ECECF1" Padding="2,3"/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <TextBlock Style="{StaticResource Label}" Text="Unidade"/>
+                <ComboBox x:Name="UnitBox" SelectionChanged="Unit_Changed">
+                    <ComboBoxItem Content="Celsius (°C)" Tag="celsius"/>
+                    <ComboBoxItem Content="Fahrenheit (°F)" Tag="fahrenheit"/>
+                </ComboBox>
+                <CheckBox x:Name="WeatherBgCheck" Content="Clima sem fundo (ícone flutuando)" Margin="0,12,0,5" Click="WeatherBg_Click"/>
+                <TextBlock Style="{StaticResource Hint}" Text="Dados do Open-Meteo, atualizados a cada 30 minutos. Clique no clima para atualizar na hora."/>
+
+                <!-- ========== Imagem ========== -->
+                <TextBlock Style="{StaticResource Section}" Text="Imagem"/>
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Escolher imagem…" Click="PickImage_Click"/>
+                    <Button Content="Remover" Margin="8,0,0,0" Click="RemoveImage_Click"/>
+                </StackPanel>
+                <CheckBox x:Name="PixelArtCheck" Content="Pixel art (ampliar sem borrar)" Margin="0,10,0,5" Click="PixelArt_Click"/>
+
+                <!-- ========== Widgets visíveis ========== -->
+                <TextBlock Style="{StaticResource Section}" Text="Blocos visíveis"/>
+                <UniformGrid Columns="2">
+                    <CheckBox x:Name="ShowClockCheck" Content="Relógio" Click="Visibility_Click"/>
+                    <CheckBox x:Name="ShowCalendarCheck" Content="Calendário" Click="Visibility_Click"/>
+                    <CheckBox x:Name="ShowNotesCheck" Content="Notas" Click="Visibility_Click"/>
+                    <CheckBox x:Name="ShowWeatherCheck" Content="Clima" Click="Visibility_Click"/>
+                    <CheckBox x:Name="ShowBatteryCheck" Content="Bateria" Click="Visibility_Click"/>
+                    <CheckBox x:Name="ShowImageCheck" Content="Imagem" Click="Visibility_Click"/>
+                </UniformGrid>
+
+                <!-- ========== Dispositivos ========== -->
+                <TextBlock Style="{StaticResource Section}" Text="Dispositivos com bateria"/>
+                <TextBlock Style="{StaticResource Hint}" Margin="0,0,0,8"
+                           Text="Desmarque o que não quiser ver no widget. A leitura é refeita a cada 3 minutos."/>
+                <StackPanel x:Name="DevicesPanel"/>
+                <Button Content="Procurar dispositivos agora" HorizontalAlignment="Left" Margin="0,10,0,0" Click="RefreshDevices_Click"/>
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
+</Window>

@@ -1,0 +1,261 @@
+<Window x:Class="DeskWidgets.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="DeskWidgets"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ShowInTaskbar="False"
+        ResizeMode="NoResize"
+        SizeToContent="WidthAndHeight"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
+        FontFamily="Segoe UI Variable Text, Segoe UI"
+        PreviewMouseLeftButtonDown="Window_PreviewMouseLeftButtonDown"
+        PreviewMouseMove="Window_PreviewMouseMove"
+        KeyDown="Window_KeyDown">
+
+    <Window.Resources>
+        <!-- Trocados em tempo de execução pela paleta escolhida -->
+        <SolidColorBrush x:Key="TextBrush" Color="White"/>
+        <SolidColorBrush x:Key="AccentBrush" Color="White"/>
+        <SolidColorBrush x:Key="AccentTextBrush" Color="#141424"/>
+        <FontFamily x:Key="IconFont">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
+
+        <Style x:Key="GhostButton" TargetType="Button">
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Padding" Value="6,2"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#2EFFFFFF"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#45FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="BareTextBox" TargetType="TextBox">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+            <Setter Property="CaretBrush" Value="{DynamicResource TextBrush}"/>
+            <Setter Property="SelectionBrush" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="0,2"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="RoundCheck" TargetType="CheckBox">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Grid Width="18" Height="18" Background="Transparent">
+                            <Ellipse x:Name="Ring" Stroke="{DynamicResource TextBrush}" StrokeThickness="1.5" Opacity="0.8"/>
+                            <Ellipse x:Name="Fill" Fill="{DynamicResource AccentBrush}" Visibility="Collapsed"/>
+                            <Path x:Name="Mark" Data="M4.5,9.5 L7.8,12.6 L13.6,6" Stroke="{DynamicResource AccentTextBrush}"
+                                  StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Visibility="Collapsed"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Fill" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="Mark" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="Ring" Property="Opacity" Value="0"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Window.ContextMenu>
+        <ContextMenu x:Name="WidgetMenu" Opened="WidgetMenu_Opened">
+            <MenuItem Header="Configurações…" Click="MenuSettings_Click"/>
+            <MenuItem Header="Abrir notas" Click="MenuNotes_Click"/>
+            <Separator/>
+            <MenuItem Header="Escolher imagem…" Click="MenuPickImage_Click"/>
+            <MenuItem x:Name="MenuRemoveImage" Header="Remover imagem" Click="MenuRemoveImage_Click"/>
+            <Separator/>
+            <MenuItem x:Name="MenuLock" Header="Travar posição" IsCheckable="True" Click="MenuLock_Click"/>
+            <MenuItem Header="Atualizar clima e bateria" Click="MenuRefresh_Click"/>
+            <Separator/>
+            <MenuItem Header="Sair" Click="MenuExit_Click"/>
+        </ContextMenu>
+    </Window.ContextMenu>
+
+    <Grid x:Name="Root" Margin="4">
+        <Grid.LayoutTransform>
+            <ScaleTransform x:Name="RootScale" ScaleX="1" ScaleY="1"/>
+        </Grid.LayoutTransform>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="110"/>
+            <ColumnDefinition Width="110"/>
+            <ColumnDefinition Width="150"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="110"/>
+            <RowDefinition Height="90"/>
+            <RowDefinition Height="110"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Notas (resumo; expande ao clicar) -->
+        <Border x:Name="TileNotes" Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Margin="5"
+                Cursor="Hand" ClipToBounds="True" MouseLeftButtonUp="Notes_Click" ToolTip="Clique para abrir a checklist">
+            <DockPanel Margin="11,9,10,9">
+                <DockPanel DockPanel.Dock="Top">
+                    <TextBlock x:Name="NotesCount" DockPanel.Dock="Right" FontSize="11" Opacity="0.7" VerticalAlignment="Center"/>
+                    <TextBlock Text="Notas" FontSize="14" FontWeight="SemiBold"/>
+                </DockPanel>
+                <Grid Margin="0,7,0,0">
+                    <ItemsControl x:Name="NotesPreview" IsHitTestVisible="False" Focusable="False">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <DockPanel Margin="0,2">
+                                    <TextBlock x:Name="Mark" DockPanel.Dock="Left" Text="○" FontSize="11" Margin="0,0,5,0" Opacity="0.8"/>
+                                    <TextBlock x:Name="Txt" Text="{Binding Text}" FontSize="11.5" TextTrimming="CharacterEllipsis"/>
+                                </DockPanel>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding Done}" Value="True">
+                                        <Setter TargetName="Mark" Property="Text" Value="✓"/>
+                                        <Setter TargetName="Txt" Property="TextDecorations" Value="Strikethrough"/>
+                                        <Setter TargetName="Txt" Property="Opacity" Value="0.5"/>
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock x:Name="NotesEmpty" Text="Clique para criar sua checklist" FontSize="11.5" Opacity="0.7"
+                               TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center"/>
+                </Grid>
+            </DockPanel>
+        </Border>
+
+        <!-- Bateria dos dispositivos -->
+        <Border x:Name="TileBattery" Grid.Row="2" Grid.Column="0" Margin="5">
+            <Grid Margin="5">
+                <Viewbox Stretch="Uniform" StretchDirection="DownOnly">
+                    <UniformGrid x:Name="BatteryGrid" Columns="2"/>
+                </Viewbox>
+                <StackPanel x:Name="BatteryEmpty" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed">
+                    <TextBlock Text="&#xE702;" FontFamily="{StaticResource IconFont}" FontSize="20" HorizontalAlignment="Center" Opacity="0.6"/>
+                    <TextBlock Text="Nenhum dispositivo" FontSize="11" Opacity="0.7" Margin="0,6,0,0" TextAlignment="Center" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Imagem / mascote -->
+        <Border x:Name="TileImage" Grid.Row="0" Grid.Column="1" Margin="5" MouseLeftButtonUp="Image_Click">
+            <StackPanel x:Name="ImagePlaceholder" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="&#xE91B;" FontFamily="{StaticResource IconFont}" FontSize="22" HorizontalAlignment="Center" Opacity="0.7"/>
+                <TextBlock Text="Escolher imagem" FontSize="11" Margin="0,6,0,0" Opacity="0.75"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Clima -->
+        <Border x:Name="TileWeather" Grid.Row="0" Grid.Column="2" Margin="5" MouseLeftButtonUp="Weather_Click">
+            <Grid>
+                <Image x:Name="WeatherIcon" Stretch="Uniform" HorizontalAlignment="Left" Margin="0,2,0,2"/>
+                <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,14,8,0">
+                    <StackPanel.Effect>
+                        <DropShadowEffect BlurRadius="6" ShadowDepth="0" Opacity="0.45" Color="Black"/>
+                    </StackPanel.Effect>
+                    <TextBlock x:Name="WeatherTemp" FontSize="32" FontWeight="Bold" HorizontalAlignment="Right" Text="--"/>
+                    <TextBlock x:Name="WeatherCity" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Right"
+                               TextTrimming="CharacterEllipsis" MaxWidth="120" Margin="0,-2,2,0"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Relógio -->
+        <Border x:Name="TileClock" Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" Grid.ColumnSpan="2" Margin="5" ClipToBounds="True">
+            <StackPanel VerticalAlignment="Center" Margin="10,6">
+                <Viewbox x:Name="ClockBox" StretchDirection="DownOnly" MaxHeight="120" HorizontalAlignment="Center">
+                    <TextBlock x:Name="ClockText" FontWeight="Bold" Text="00:00"/>
+                </Viewbox>
+                <TextBlock x:Name="DateShort" FontSize="14" HorizontalAlignment="Center" Margin="0,-2,0,0"/>
+                <TextBlock x:Name="DateLong" FontSize="21" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Calendário -->
+        <Border x:Name="TileCalendar" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Margin="5"
+                TextElement.FontFamily="Segoe UI Variable Display, Segoe UI">
+            <DockPanel Margin="12,8,12,10">
+                <Grid DockPanel.Dock="Top" Margin="2,0,0,4">
+                    <TextBlock x:Name="CalTitle" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"
+                               Cursor="Hand" ToolTip="Voltar para o mês atual" MouseLeftButtonUp="CalTitle_Click"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="&#xE76B;" FontFamily="{StaticResource IconFont}" FontSize="11" Style="{StaticResource GhostButton}" Click="CalPrev_Click" ToolTip="Mês anterior"/>
+                        <Button Content="&#xE76C;" FontFamily="{StaticResource IconFont}" FontSize="11" Style="{StaticResource GhostButton}" Click="CalNext_Click" ToolTip="Próximo mês"/>
+                    </StackPanel>
+                </Grid>
+                <UniformGrid x:Name="CalHeader" DockPanel.Dock="Top" Columns="7" Margin="0,0,0,4"/>
+                <UniformGrid x:Name="CalDays" Columns="7"/>
+            </DockPanel>
+        </Border>
+
+        <!-- Notas expandidas (cobre o widget inteiro) -->
+        <Border x:Name="NotesOverlay" Grid.Row="0" Grid.RowSpan="4" Grid.Column="0" Grid.ColumnSpan="3" Margin="5" Visibility="Collapsed">
+            <DockPanel Margin="16,12,14,14">
+                <DockPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+                    <Button DockPanel.Dock="Right" Content="&#xE711;" FontFamily="{StaticResource IconFont}" FontSize="12"
+                            Style="{StaticResource GhostButton}" Padding="8,6" Click="NotesClose_Click" ToolTip="Fechar (Esc)"/>
+                    <Button DockPanel.Dock="Right" Content="Limpar concluídos" FontSize="11.5" Margin="0,0,4,0"
+                            Style="{StaticResource GhostButton}" Click="ClearDone_Click"/>
+                    <TextBlock Text="Notas" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                </DockPanel>
+
+                <Border DockPanel.Dock="Bottom" CornerRadius="8" Background="#22FFFFFF" Margin="0,10,0,0" Padding="10,5">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Left" Text="&#xE710;" FontFamily="{StaticResource IconFont}" FontSize="12"
+                                   VerticalAlignment="Center" Margin="0,0,10,0" Opacity="0.75"/>
+                        <Grid>
+                            <TextBlock x:Name="NewNotePlaceholder" Text="Novo item (Enter para adicionar)" FontSize="13"
+                                       Opacity="0.55" VerticalAlignment="Center" IsHitTestVisible="False"/>
+                            <TextBox x:Name="NewNoteBox" Style="{StaticResource BareTextBox}"
+                                     KeyDown="NewNoteBox_KeyDown" TextChanged="NewNoteBox_TextChanged"/>
+                        </Grid>
+                    </DockPanel>
+                </Border>
+
+                <ScrollViewer VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled">
+                    <ItemsControl x:Name="NotesList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <DockPanel Margin="0,4">
+                                    <Button DockPanel.Dock="Right" Content="&#xE711;" FontFamily="{StaticResource IconFont}" FontSize="9"
+                                            Style="{StaticResource GhostButton}" Opacity="0.6" Click="DeleteNote_Click" ToolTip="Excluir"/>
+                                    <CheckBox DockPanel.Dock="Left" IsChecked="{Binding Done}" Style="{StaticResource RoundCheck}"
+                                              VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <TextBox x:Name="Txt" Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource BareTextBox}"/>
+                                </DockPanel>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding Done}" Value="True">
+                                        <Setter TargetName="Txt" Property="TextDecorations" Value="Strikethrough"/>
+                                        <Setter TargetName="Txt" Property="Opacity" Value="0.5"/>
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>
