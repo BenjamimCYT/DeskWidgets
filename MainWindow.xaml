@@ -177,7 +177,7 @@
                     </StackPanel.Effect>
                     <TextBlock x:Name="WeatherTemp" FontSize="32" FontWeight="Bold" HorizontalAlignment="Right" Text="--"/>
                     <TextBlock x:Name="WeatherCity" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Right"
-                               TextTrimming="CharacterEllipsis" MaxWidth="120" Margin="0,-2,2,0"/>
+                               TextTrimming="CharacterEllipsis" MaxWidth="120" Margin="0,6,2,0"/>
                 </StackPanel>
             </Grid>
         </Border>

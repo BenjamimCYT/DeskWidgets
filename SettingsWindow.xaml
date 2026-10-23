@@ -173,6 +173,8 @@
                 </ComboBox>
                 <CheckBox x:Name="LockCheck" Content="Travar posição" Margin="0,12,0,5" Click="Lock_Click"/>
                 <CheckBox x:Name="StartupCheck" Content="Iniciar com o Windows" Click="Startup_Click"/>
+                <CheckBox x:Name="StartMenuCheck" Content="Mostrar no menu Iniciar" Click="StartMenu_Click"/>
+                <TextBlock Style="{StaticResource Hint}" Text="Deixe o DeskWidgets.exe numa pasta fixa antes; se mudar o arquivo de lugar, abra uma vez pela nova pasta que o atalho se atualiza."/>
 
                 <!-- ========== Relógio ========== -->
                 <TextBlock Style="{StaticResource Section}" Text="Relógio"/>
@@ -249,7 +251,12 @@
                 <TextBlock Style="{StaticResource Hint}" Margin="0,0,0,8"
                            Text="Desmarque o que não quiser ver no widget. A leitura é refeita a cada 3 minutos."/>
                 <StackPanel x:Name="DevicesPanel"/>
-                <Button Content="Procurar dispositivos agora" HorizontalAlignment="Left" Margin="0,10,0,0" Click="RefreshDevices_Click"/>
+                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                    <Button Content="Procurar dispositivos agora" Click="RefreshDevices_Click"/>
+                    <Button Content="Copiar diagnóstico" Margin="8,0,0,0" Click="CopyDiagnostics_Click"/>
+                </StackPanel>
+                <TextBlock x:Name="DiagStatus" Style="{StaticResource Hint}"
+                           Text="Se um mouse ou fone não aparecer, copie o diagnóstico e envie para adicionar o suporte."/>
             </StackPanel>
         </ScrollViewer>
     </DockPanel>

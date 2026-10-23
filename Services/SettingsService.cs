@@ -47,6 +47,7 @@ namespace DeskWidgets.Services
                 Current = new AppSettings();
             }
             Current.HiddenDevices ??= new List<string>();
+            Current.LastVendorBattery ??= new Dictionary<string, int>();
 
             try
             {
@@ -123,7 +124,9 @@ namespace DeskWidgets.Services
                 ImagePath = o.ImagePath,
                 HiddenDevices = o.HiddenDevices,
                 StartWithWindows = o.StartWithWindows,
-                Locked = o.Locked
+                Locked = o.Locked,
+                StartMenuShortcut = o.StartMenuShortcut,
+                LastVendorBattery = o.LastVendorBattery
             };
             SaveSoon();
         }

@@ -21,8 +21,7 @@ namespace DeskWidgets.Services
     ///  2) Serviço GATT "Battery" em dispositivos Bluetooth LE conectados (fallback)
     ///  3) Baterias HID / do sistema (alguns receptores 2.4 GHz e o próprio notebook)
     ///  4) Controles sem fio (Xbox, etc.) via Windows.Gaming.Input
-    /// Receptores 2.4 GHz com protocolo proprietário (Logitech Lightspeed/Bolt, Razer HyperSpeed...)
-    /// não expõem a bateria ao Windows; esses só funcionam com o SDK do fabricante.
+    ///  5) Receptores 2.4 GHz com protocolo próprio já mapeados (ver VendorHidBattery)
     /// </summary>
     public static class BatteryService
     {
@@ -61,7 +60,7 @@ namespace DeskWidgets.Services
             catch (Exception ex) { SettingsService.Log(ex); }
         }
 
-        public static async Task<List<DeviceBattery>> GetAllAsync()
+        public static async Task<List<DeviceBattery>> GetAllAsync(IReadOnlyDictionary<string, int> persistedVendor = null)
         {
             var list = new List<DeviceBattery>();
             var seenNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -72,6 +71,7 @@ namespace DeskWidgets.Services
 
             try { await AddPnpBluetoothAsync(list, endpoints, seenNames, seenContainers); } catch (Exception ex) { SettingsService.Log(ex); }
             try { await AddBleGattAsync(list, endpoints, seenNames, seenContainers); } catch (Exception ex) { SettingsService.Log(ex); }
+            try { await VendorHidBattery.AddAsync(list, seenNames, persistedVendor); } catch (Exception ex) { SettingsService.Log(ex); }
             try { await AddSystemBatteriesAsync(list, seenNames); } catch (Exception ex) { SettingsService.Log(ex); }
             try { AddGameControllers(list, seenNames); } catch (Exception ex) { SettingsService.Log(ex); }
 

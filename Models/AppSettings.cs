@@ -44,6 +44,7 @@ namespace DeskWidgets.Models
         public bool Locked { get; set; } = false;
         public string ZMode { get; set; } = "Desktop"; // Desktop | Normal | Topmost
         public bool StartWithWindows { get; set; } = false;
+        public bool StartMenuShortcut { get; set; } = true;
 
         // Widgets visíveis
         public bool ShowNotes { get; set; } = true;
@@ -56,6 +57,8 @@ namespace DeskWidgets.Models
         // Bateria
         public List<string> HiddenDevices { get; set; } = new List<string>();
         public int BatteryRefreshMinutes { get; set; } = 3;
+        // Última porcentagem recebida de mouses 2.4 GHz (mostrada até chegar uma leitura nova)
+        public Dictionary<string, int> LastVendorBattery { get; set; } = new Dictionary<string, int>();
     }
 
     public class Palette
@@ -114,7 +117,7 @@ namespace DeskWidgets.Models
     {
         public string Key { get; set; }    // identificador estável (usado para ocultar)
         public string Name { get; set; }
-        public int Level { get; set; }     // 0..100
+        public int Level { get; set; }     // 0..100 (-1 = aguardando o dispositivo informar)
         public string Glyph { get; set; }  // ícone Segoe Fluent
         public string Source { get; set; } // bt | ble | sys | pad
     }

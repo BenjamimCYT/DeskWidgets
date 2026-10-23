@@ -166,6 +166,9 @@ namespace DeskWidgets
                 _batteryKick.Start();
             })));
 
+            // Mouse 2.4 GHz mandou um pacote de bateria: atualiza na hora, sem esperar o timer
+            VendorHidBattery.LevelReceived += (key, level) => Dispatcher.BeginInvoke(new Action(() => OnVendorLevel(key, level)));
+
             SystemEvents.TimeChanged += (s, a) => Dispatcher.BeginInvoke(new Action(() => { UpdateClock(); ScheduleNextTick(); }));
             SystemEvents.PowerModeChanged += (s, a) =>
             {
@@ -421,13 +424,27 @@ namespace DeskWidgets
             _batteryBusy = true;
             try
             {
-                var list = await Task.Run(() => BatteryService.GetAllAsync());
+                var persisted = new Dictionary<string, int>(S.LastVendorBattery);
+                var list = await Task.Run(() => BatteryService.GetAllAsync(persisted));
                 _devices = list;
                 RenderBatteries();
                 DevicesUpdated?.Invoke();
             }
             catch (Exception ex) { SettingsService.Log(ex); }
             finally { _batteryBusy = false; }
+        }
+
+        private void OnVendorLevel(string key, int level)
+        {
+            S.LastVendorBattery[key] = level;
+            SettingsService.SaveSoon();
+
+            var dev = _devices.FirstOrDefault(d => d.Key == key);
+            if (dev == null) { RefreshBattery(); return; }
+            if (dev.Level == level) return;
+            dev.Level = level;
+            RenderBatteries();
+            DevicesUpdated?.Invoke();
         }
 
         public void RefreshAll()
@@ -471,11 +488,18 @@ namespace DeskWidgets
                 VerticalAlignment = VerticalAlignment.Center
             });
 
-            var stack = new StackPanel { Margin = new Thickness(5, 3, 5, 3), ToolTip = d.Name + ": " + d.Level + "%" };
+            bool waiting = d.Level < 0;
+            var stack = new StackPanel
+            {
+                Margin = new Thickness(5, 3, 5, 3),
+                ToolTip = waiting
+                    ? d.Name + ": aguardando o mouse informar a bateria (mexa nele ou espere alguns minutos)"
+                    : d.Name + ": " + d.Level + "%"
+            };
             stack.Children.Add(ring);
             stack.Children.Add(new TextBlock
             {
-                Text = d.Level + "%",
+                Text = waiting ? "…" : d.Level + "%",
                 FontSize = 11,
                 Opacity = 0.8,
                 HorizontalAlignment = HorizontalAlignment.Center,
@@ -579,7 +603,7 @@ namespace DeskWidgets
         private void Image_Click(object sender, MouseButtonEventArgs e)
         {
             if (_dragged) return;
-            if (string.IsNullOrWhiteSpace(S.ImagePath)) PickImage();
+            if (ImagePlaceholder.Visibility == Visibility.Visible) PickImage();
         }
 
         // ================== Notas ==================

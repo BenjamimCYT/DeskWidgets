@@ -59,6 +59,7 @@ namespace DeskWidgets
             SelectByTag(ZModeBox, S.ZMode);
             LockCheck.IsChecked = S.Locked;
             StartupCheck.IsChecked = StartupService.IsEnabled();
+            StartMenuCheck.IsChecked = S.StartMenuShortcut && ShortcutService.Exists();
 
             FontBox.SelectedItem = (FontBox.ItemsSource as System.Collections.Generic.List<string>)?
                 .FirstOrDefault(f => string.Equals(f, S.ClockFont, StringComparison.OrdinalIgnoreCase));
@@ -309,6 +310,22 @@ namespace DeskWidgets
             }
         }
 
+        private void StartMenu_Click(object sender, RoutedEventArgs e)
+        {
+            bool want = StartMenuCheck.IsChecked == true;
+            if (ShortcutService.Set(want))
+            {
+                S.StartMenuShortcut = want;
+                SettingsService.SaveSoon();
+            }
+            else
+            {
+                StartMenuCheck.IsChecked = !want;
+                MessageBox.Show(this, "Não foi possível alterar o atalho do menu Iniciar. Detalhes em %AppData%\\DeskWidgets\\erros.log.",
+                    "DeskWidgets", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
         // ---------- relógio ----------
 
         private void SetPreviewFont()
@@ -465,7 +482,7 @@ namespace DeskWidgets
             {
                 var cb = new CheckBox
                 {
-                    Content = $"{d.Name} ({d.Level}%)",
+                    Content = d.Level < 0 ? $"{d.Name} (aguardando leitura)" : $"{d.Name} ({d.Level}%)",
                     IsChecked = !S.HiddenDevices.Contains(d.Key),
                     Tag = d.Key
                 };
@@ -484,6 +501,28 @@ namespace DeskWidgets
         }
 
         private void RefreshDevices_Click(object sender, RoutedEventArgs e) => _main.RefreshBattery();
+
+        private async void CopyDiagnostics_Click(object sender, RoutedEventArgs e)
+        {
+            DiagStatus.Text = "Gerando…";
+            try
+            {
+                var sb = new System.Text.StringBuilder();
+                sb.AppendLine("DeskWidgets — diagnóstico de dispositivos");
+                sb.AppendLine("Detectados com bateria:");
+                foreach (var d in _main.LastDevices)
+                    sb.AppendLine($"  {d.Name} [{d.Source}] {(d.Level < 0 ? "aguardando" : d.Level + "%")}");
+                sb.AppendLine();
+                sb.Append(await VendorHidBattery.DiagnosticsAsync());
+                Clipboard.SetText(sb.ToString());
+                DiagStatus.Text = "Copiado. Cole na conversa para eu adicionar o dispositivo que faltar.";
+            }
+            catch (Exception ex)
+            {
+                SettingsService.Log(ex);
+                DiagStatus.Text = "Não foi possível gerar o diagnóstico.";
+            }
+        }
 
         // ---------- rodapé ----------
 

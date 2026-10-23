@@ -50,9 +50,10 @@ Para testar durante o desenvolvimento: `dotnet run` na pasta do projeto.
 | Dispositivos **Bluetooth LE** com o serviço padrão de bateria | Sim |
 | Controles Xbox (adaptador sem fio ou Bluetooth) | Sim |
 | Dispositivos 2.4 GHz que se apresentam ao Windows como bateria HID | Sim |
+| **Attack Shark X11** pelo receptor 2.4 GHz | Sim (o app escuta os pacotes de bateria que o mouse envia; a 1ª leitura chega quando a carga muda ou o mouse acorda) |
 | Receptores 2.4 GHz com protocolo próprio: Logitech Lightspeed/Unifying/Bolt, Razer HyperSpeed, Corsair Slipstream, HyperX etc. | **Não** — o Windows não recebe essa informação; só o software da marca (G HUB, Synapse, iCUE) consegue ler |
 
-Se um dispositivo seu não aparecer, diga a marca/modelo: para Logitech, por exemplo, dá para implementar o protocolo HID++ dentro do app.
+Se um dispositivo não aparecer: Configurações → *Copiar diagnóstico* e envie o texto. Novos mouses 2.4 GHz entram na tabela `Known` de `Services/VendorHidBattery.cs`.
 
 ## Consumo de recursos
 
@@ -65,6 +66,10 @@ O app foi feito para ficar parado quase o tempo todo:
 - Imagens grandes são decodificadas em tamanho reduzido, e a memória ociosa é devolvida ao Windows depois de carregar.
 
 Abra o Gerenciador de Tarefas para conferir no seu PC.
+
+## Menu Iniciar
+
+Na primeira execução o app cria o atalho **DeskWidgets** no menu Iniciar (dá para desligar nas configurações). Coloque o `DeskWidgets.exe` numa pasta fixa antes, por exemplo `%LocalAppData%\Programs\DeskWidgets\`. Abrir pelo menu Iniciar com o app já rodando abre as configurações.
 
 ## Onde ficam os dados
 

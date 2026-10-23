@@ -10,6 +10,8 @@ namespace DeskWidgets
     public partial class App : Application
     {
         private Mutex _mutex;
+        private EventWaitHandle _showEvent;
+        private const string ShowEventName = @"Local\DeskWidgets.Show";
         private System.Windows.Forms.NotifyIcon _tray;
         private SettingsWindow _settings;
 
@@ -21,11 +23,24 @@ namespace DeskWidgets
             _mutex = new Mutex(true, @"Local\DeskWidgets.SingleInstance", out bool isFirst);
             if (!isFirst)
             {
+                // Já está aberto (ex.: clicou no menu Iniciar): pede à instância aberta para mostrar as configurações
+                try { using var ev = EventWaitHandle.OpenExisting(ShowEventName); ev.Set(); } catch { }
                 _mutex.Dispose();
                 _mutex = null;
                 Shutdown();
                 return;
             }
+
+            _showEvent = new EventWaitHandle(false, EventResetMode.AutoReset, ShowEventName);
+            var waiter = new Thread(() =>
+            {
+                while (true)
+                {
+                    _showEvent.WaitOne();
+                    Dispatcher.BeginInvoke(new Action(() => { Widget?.BringBack(); OpenSettings(); }));
+                }
+            }, 64 * 1024) { IsBackground = true, Name = "show-signal" };
+            waiter.Start();
 
             base.OnStartup(e);
 
@@ -38,6 +53,10 @@ namespace DeskWidgets
             Widget = new MainWindow();
             Widget.Show();
             CreateTray();
+
+            // Mantém atalhos apontando para o .exe atual (caso ele tenha mudado de pasta)
+            if (SettingsService.Current.StartMenuShortcut) ShortcutService.Set(true);
+            if (StartupService.IsEnabled()) StartupService.Set(true);
         }
 
         private void CreateTray()
