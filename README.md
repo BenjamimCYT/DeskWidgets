@@ -1,89 +1,125 @@
+<div align="center">
+
+<img src="docs/icon.png" width="96" alt="Ícone do DeskWidgets">
+
 # DeskWidgets
 
-Widget de área de trabalho para Windows 11, nativo (C# / WPF), feito a partir do modelo: notas em checklist, imagem, clima, bateria dos dispositivos, relógio e calendário.
+**Relógio, calendário, clima, bateria e checklist direto na sua área de trabalho.**
+Personalizável, nativo do Windows e tão leve que você esquece que está aberto.
 
-## Como gerar o .exe
+[![Versão](https://img.shields.io/github/v/release/BenjamimCYT/DeskWidgets?style=for-the-badge&label=versão&color=3B35D6)](https://github.com/BenjamimCYT/DeskWidgets/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/BenjamimCYT/DeskWidgets/total?style=for-the-badge&label=downloads&color=1E1B4B)](https://github.com/BenjamimCYT/DeskWidgets/releases)
+[![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?style=for-the-badge&logo=windows&logoColor=white)](#requisitos)
+[![.NET](https://img.shields.io/badge/.NET-10-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)](https://dotnet.microsoft.com)
 
-**Opção A: GitHub Actions (não precisa instalar nada no PC)**
+### [⬇ Baixar a versão mais recente](https://github.com/BenjamimCYT/DeskWidgets/releases/latest)
 
-1. Crie um repositório no GitHub e envie esta pasta inteira (inclusive `.github/`).
-2. Abra a aba **Actions** → *Build DeskWidgets* → **Run workflow**.
-3. Quando terminar, baixe o artefato:
-   - `DeskWidgets-completo-win-x64`: roda direto em qualquer Windows 10/11.
-   - `DeskWidgets-leve-win-x64`: bem menor, mas exige o **.NET 10 Desktop Runtime** instalado.
+<img src="docs/screenshot.png" width="380" alt="DeskWidgets na área de trabalho">
 
-**Opção B: no seu PC**
+</div>
 
-1. Instale o **.NET 10 SDK** (dotnet.microsoft.com/download).
-2. Dê dois cliques em `build.bat`. O executável sai em `publish\DeskWidgets.exe`.
+---
 
-Para testar durante o desenvolvimento: `dotnet run` na pasta do projeto.
+## ✨ O que tem
 
-## Uso
+| | |
+|---|---|
+| 🕐 **Relógio** | Qualquer fonte instalada no PC, tamanho ajustável, 12 ou 24 h e segundos opcionais |
+| 📅 **Calendário** | Mês inteiro com o dia de hoje destacado e setas para navegar entre meses |
+| ⛅ **Clima** | Temperatura da cidade que você escolher, com ícones que mudam conforme o tempo e entre dia e noite |
+| 🔋 **Bateria** | Fones, mouses, teclados e controles conectados, em anéis coloridos por nível de carga |
+| ✅ **Notas** | Checklist que expande ao clicar: Enter adiciona, Esc fecha |
+| 🖼️ **Imagem** | Uma foto ou arte sua, com modo pixel art para ampliar sem borrar |
+
+## 🎨 Do seu jeito
+
+- **10 paletas com gradiente** prontas, ou cores livres para topo, base, destaque e texto
+- **Opacidade** do fundo de 0% a 100%: no zero, só o texto e os ícones flutuam sobre o papel de parede
+- **Cantos**, direção do gradiente e **tamanho** do widget ajustáveis (também com <kbd>Ctrl</kbd> + roda do mouse)
+- Cada bloco pode ser ligado ou desligado
+- Data em português, inglês ou espanhol
+- Fica **fixo na área de trabalho**, como janela comum ou **sempre por cima**
+
+## 🪶 Leve de verdade
+
+O DeskWidgets foi feito para ficar parado quase o tempo todo:
+
+- Nativo em C#/WPF, **sem navegador embutido** (nada de Electron)
+- Roda em **modo de eficiência** do Windows 11, então nunca disputa CPU com jogos
+- O relógio acorda **uma vez por minuto**, exatamente na virada
+- Clima a cada 30 minutos e bateria a cada 3, fora da interface
+- Sem animações, e a memória ociosa é devolvida ao Windows
+
+## 🔋 Dispositivos compatíveis
+
+| Tipo | Suporte |
+|---|:---:|
+| Fones, mouses, teclados e controles **Bluetooth** | ✅ |
+| Dispositivos **Bluetooth LE** com serviço de bateria padrão | ✅ |
+| Controles **Xbox** (adaptador sem fio ou Bluetooth) | ✅ |
+| Receptores 2.4 GHz que se apresentam como bateria HID | ✅ |
+| **Attack Shark X11** pelo receptor 2.4 GHz | ✅ |
+| Logitech Lightspeed/Bolt, Razer HyperSpeed, Corsair Slipstream | ❌ por enquanto |
+
+> [!TIP]
+> Seu dispositivo não aparece? Abra **Configurações → Dispositivos → Copiar diagnóstico** e cole o texto numa [issue](https://github.com/BenjamimCYT/DeskWidgets/issues). Com ele dá para adicionar o suporte.
+
+## 🖱️ Atalhos
 
 | Ação | Como |
 |---|---|
 | Mover | Arraste qualquer bloco |
-| Redimensionar | **Ctrl + roda do mouse** sobre o widget, ou o controle deslizante nas configurações |
-| Configurações | Botão direito no widget, ou no ícone da bandeja |
-| Checklist | Clique no bloco **Notas**; Enter adiciona, Esc fecha |
-| Imagem | Clique no bloco vazio, ou botão direito → *Escolher imagem…* |
-| Atualizar clima | Clique no clima |
-| Calendário | Setas trocam o mês; clique no nome do mês para voltar ao atual |
-| Trazer de volta (após Win+D) | Clique no ícone da bandeja |
+| Mudar o tamanho | <kbd>Ctrl</kbd> + roda do mouse sobre o widget |
+| Configurações | Botão direito no widget, ícone da bandeja ou menu Iniciar |
+| Abrir a checklist | Clique no bloco **Notas** |
+| Atualizar o clima | Clique no clima |
+| Voltar ao mês atual | Clique no nome do mês |
+| Trazer de volta após <kbd>Win</kbd> + <kbd>D</kbd> | Clique no ícone da bandeja |
 
-## Personalização
+## Requisitos
 
-- 10 paletas com gradiente prontas, ou cores livres (topo, base, destaque e texto) com seletor de cor.
-- Direção do gradiente (vertical, horizontal, diagonal), opacidade do fundo de 0% a 100% e arredondamento dos cantos.
-- Relógio: qualquer fonte instalada, tamanho de 28 a 140 px, negrito, 12/24 h e segundos opcionais.
-- Data e calendário em português, inglês ou espanhol (o dia de hoje fica marcado com a cor de destaque).
-- Clima por cidade (busca integrada), °C ou °F, com ícones que mudam conforme o tempo e dia/noite.
-- Liga/desliga cada bloco e escolhe quais dispositivos aparecem na bateria.
-- Camada: fixo na área de trabalho, janela comum ou sempre por cima.
+- Windows 10 (versão 2004 ou mais recente) ou Windows 11, 64 bits
+- A versão **leve** da release precisa do [.NET 10 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/10.0); a versão **completa** roda sem instalar nada
 
-## Bateria: o que é detectado
+Configurações e notas ficam salvas em `%AppData%\DeskWidgets\`.
 
-| Tipo | Funciona? |
-|---|---|
-| Fones, mouses, teclados e controles **Bluetooth** (os que mostram bateria em Configurações → Bluetooth) | Sim |
-| Dispositivos **Bluetooth LE** com o serviço padrão de bateria | Sim |
-| Controles Xbox (adaptador sem fio ou Bluetooth) | Sim |
-| Dispositivos 2.4 GHz que se apresentam ao Windows como bateria HID | Sim |
-| **Attack Shark X11** pelo receptor 2.4 GHz | Sim (o app escuta os pacotes de bateria que o mouse envia; a 1ª leitura chega quando a carga muda ou o mouse acorda) |
-| Receptores 2.4 GHz com protocolo próprio: Logitech Lightspeed/Unifying/Bolt, Razer HyperSpeed, Corsair Slipstream, HyperX etc. | **Não** — o Windows não recebe essa informação; só o software da marca (G HUB, Synapse, iCUE) consegue ler |
+## ⚠️ Limitações conhecidas
 
-Se um dispositivo não aparecer: Configurações → *Copiar diagnóstico* e envie o texto. Novos mouses 2.4 GHz entram na tabela `Known` de `Services/VendorHidBattery.cs`.
+- **Attack Shark X11:** a primeira porcentagem chega quando o mouse a envia (quando a carga muda ou ele acorda). Depois disso, o último valor fica salvo.
+- Depois de <kbd>Win</kbd> + <kbd>D</kbd>, o widget pode ficar escondido até você clicar no ícone da bandeja.
+- GIFs animados mostram só o primeiro quadro.
 
-## Consumo de recursos
+<details>
+<summary><b>🛠️ Para desenvolvedores</b></summary>
 
-O app foi feito para ficar parado quase o tempo todo:
+<br>
 
-- Roda em **modo de eficiência** do Windows 11 (prioridade baixa + EcoQoS), então nunca disputa CPU com jogos.
-- O relógio acorda uma vez por minuto, exatamente na virada (uma vez por segundo só se você ativar os segundos).
-- Clima: 1 requisição pequena a cada 30 min. Bateria: 1 leitura a cada 3 min, fora da thread da interface.
-- Sem animações; ícones de clima são vetoriais e desenhados uma única vez.
-- Imagens grandes são decodificadas em tamanho reduzido, e a memória ociosa é devolvida ao Windows depois de carregar.
+Requer o [.NET 10 SDK](https://dotnet.microsoft.com/download).
 
-Abra o Gerenciador de Tarefas para conferir no seu PC.
+```bash
+dotnet run                 # testar
+build.bat                  # gerar o .exe em publish\
+```
 
-## Menu Iniciar
-
-Na primeira execução o app cria o atalho **DeskWidgets** no menu Iniciar (dá para desligar nas configurações). Coloque o `DeskWidgets.exe` numa pasta fixa antes, por exemplo `%LocalAppData%\Programs\DeskWidgets\`. Abrir pelo menu Iniciar com o app já rodando abre as configurações.
-
-## Onde ficam os dados
-
-`%AppData%\DeskWidgets\`
-- `settings.json`: configurações
-- `notas.json`: checklist
-- `erros.log`: só existe se algo der errado
-
-## Estrutura
+O GitHub Actions (`.github/workflows/build.yml`) gera as duas versões a cada push na `main`.
 
 ```
-App.xaml(.cs)            instância única + ícone da bandeja
+App.xaml(.cs)            instância única, bandeja do sistema
 MainWindow.xaml(.cs)     o widget
 SettingsWindow.xaml(.cs) configurações (aplicam na hora)
-Services/                clima (Open-Meteo), bateria, configurações, inicialização com o Windows
+Services/                clima, bateria, mouses 2.4 GHz, atalhos, configurações
 Helpers/                 ícones de clima, cores, chamadas nativas do Windows
 ```
+
+Para adicionar um mouse 2.4 GHz, inclua o VID/PID e o formato do pacote na tabela `Known` de `Services/VendorHidBattery.cs`.
+
+</details>
+
+## 🙏 Créditos
+
+- Suporte ao Attack Shark X11 baseado na engenharia reversa de [OpenSharkX11](https://github.com/clevim/OpenSharkX11) e [attack-shark-x11-driver](https://github.com/HarukaYamamoto0/attack-shark-x11-driver)
+- Dados de clima: [Open-Meteo](https://open-meteo.com)
+
+<div align="center">
+<sub>Feito por <a href="https://github.com/BenjamimCYT">@BenjamimCYT</a></sub>
+</div>
