@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/icon.png" width="96" alt="Ícone do DeskWidgets">
+<img src="docs/DeskWidgets-icone.png" width="96" alt="Ícone do DeskWidgets">
 
 # DeskWidgets
 
@@ -14,7 +14,7 @@ Personalizável, nativo do Windows e tão leve que você esquece que está abert
 
 ### [⬇ Baixar a versão mais recente](https://github.com/BenjamimCYT/DeskWidgets/releases/latest)
 
-<img src="docs/screenshot.png" width="380" alt="DeskWidgets na área de trabalho">
+<img src="docs/Screnshot.png" width="380" alt="DeskWidgets na área de trabalho">
 
 </div>
 
