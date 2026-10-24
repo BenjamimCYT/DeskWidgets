@@ -529,11 +529,8 @@ namespace DeskWidgets
             if (!wasTodoist && notes.Count > 0)
             {
                 var r = MessageBox.Show(this,
-                    $"Você tem {notes.Count} nota(s) no widget.
-
-" +
-                    $"Sim: enviar para a lista “{p.Display}” do Todoist.
-" +
+                    $"Você tem {notes.Count} nota(s) no widget.\n\n" +
+                    $"Sim: enviar para a lista “{p.Display}” do Todoist.\n" +
                     "Não: guardar uma cópia de segurança e mostrar só as tarefas do Todoist.",
                     "Conectar ao Todoist", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
 
@@ -568,9 +565,7 @@ namespace DeskWidgets
         private void TodoistDisconnect_Click(object sender, RoutedEventArgs e)
         {
             var r = MessageBox.Show(this,
-                "Desconectar do Todoist?
-
-As tarefas que estão no widget continuam aqui como notas locais. Nada é apagado no Todoist.",
+                "Desconectar do Todoist?\n\nAs tarefas que estão no widget continuam aqui como notas locais. Nada é apagado no Todoist.",
                 "Desconectar", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (r != MessageBoxResult.Yes) return;
 
