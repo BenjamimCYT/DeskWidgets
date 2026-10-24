@@ -10,7 +10,7 @@ Personalizável, nativo do Windows e tão leve que você esquece que está abert
 [![Versão](https://img.shields.io/github/v/release/BenjamimCYT/DeskWidgets?style=for-the-badge&label=versão&color=3B35D6)](https://github.com/BenjamimCYT/DeskWidgets/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/BenjamimCYT/DeskWidgets/total?style=for-the-badge&label=downloads&color=1E1B4B)](https://github.com/BenjamimCYT/DeskWidgets/releases)
 [![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?style=for-the-badge&logo=windows&logoColor=white)](#requisitos)
-[![.NET](https://img.shields.io/badge/.NET-10-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)](https://dotnet.microsoft.com)
+
 
 ### [⬇ Baixar a versão mais recente](https://github.com/BenjamimCYT/DeskWidgets/releases/latest)
 
