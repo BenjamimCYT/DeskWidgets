@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/DeskWidgets-icone.png" width="96" alt="Ícone do DeskWidgets">
+<img src="docs/icon.png" width="96" alt="Ícone do DeskWidgets">
 
 # DeskWidgets
 
@@ -28,7 +28,7 @@ Personalizável, nativo do Windows e tão leve que você esquece que está abert
 | 📅 **Calendário** | Mês inteiro com o dia de hoje destacado e setas para navegar entre meses |
 | ⛅ **Clima** | Temperatura da cidade que você escolher, com ícones que mudam conforme o tempo e entre dia e noite |
 | 🔋 **Bateria** | Fones, mouses, teclados e controles conectados, em anéis coloridos por nível de carga |
-| ✅ **Notas** | Checklist que expande ao clicar: Enter adiciona, Esc fecha |
+| ✅ **Notas** | Checklist que expande ao clicar; opcionalmente sincronizada com o **Todoist** para editar pelo celular |
 | 🖼️ **Imagem** | Uma foto ou arte sua, com modo pixel art para ampliar sem borrar |
 
 ## 🎨 Do seu jeito
@@ -63,6 +63,12 @@ O DeskWidgets foi feito para ficar parado quase o tempo todo:
 
 > [!TIP]
 > Seu dispositivo não aparece? Abra **Configurações → Dispositivos → Copiar diagnóstico** e cole o texto numa [issue](https://github.com/BenjamimCYT/DeskWidgets/issues). Com ele dá para adicionar o suporte.
+
+## 📱 Notas pelo celular
+
+A checklist pode espelhar uma lista do **Todoist** (funciona no plano gratuito). Você escreve no app do celular e a tarefa aparece no widget; marcar como feita no widget conclui no Todoist também.
+
+Em **Configurações → Notas no celular**, cole seu token (Todoist → Configurações → Integrações → Desenvolvedor) e escolha a lista. O token fica criptografado com a sua conta do Windows. Sem internet, as mudanças ficam guardadas e são enviadas depois.
 
 ## 🖱️ Atalhos
 

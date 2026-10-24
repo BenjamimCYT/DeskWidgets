@@ -40,6 +40,15 @@
             <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
 
+        <Style TargetType="PasswordBox">
+            <Setter Property="Background" Value="#24242C"/>
+            <Setter Property="Foreground" Value="#ECECF1"/>
+            <Setter Property="BorderBrush" Value="#3A3A46"/>
+            <Setter Property="CaretBrush" Value="#ECECF1"/>
+            <Setter Property="Padding" Value="6,4"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
         <Style TargetType="Button">
             <Setter Property="Foreground" Value="#ECECF1"/>
             <Setter Property="Background" Value="#2A2A33"/>
@@ -226,6 +235,25 @@
                 </ComboBox>
                 <CheckBox x:Name="WeatherBgCheck" Content="Clima sem fundo (ícone flutuando)" Margin="0,12,0,5" Click="WeatherBg_Click"/>
                 <TextBlock Style="{StaticResource Hint}" Text="Dados do Open-Meteo, atualizados a cada 30 minutos. Clique no clima para atualizar na hora."/>
+
+                <!-- ========== Notas no celular ========== -->
+                <TextBlock Style="{StaticResource Section}" Text="Notas no celular (Todoist)"/>
+                <TextBlock Style="{StaticResource Hint}" Margin="0,0,0,10">
+                    Escreva no app do Todoist e a checklist do widget acompanha, nos dois sentidos. Funciona no plano gratuito.
+                    Copie seu token em
+                    <Hyperlink NavigateUri="https://todoist.com/app/settings/integrations/developer"
+                               RequestNavigate="Link_RequestNavigate" Foreground="#8AB4FF">Configurações → Integrações → Desenvolvedor</Hyperlink>
+                    e cole abaixo.
+                </TextBlock>
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" Content="Conectar" Margin="8,0,0,0" Click="TodoistConnect_Click"/>
+                    <PasswordBox x:Name="TodoistTokenBox"/>
+                </DockPanel>
+                <TextBlock Style="{StaticResource Label}" Text="Lista que aparece no widget"/>
+                <ComboBox x:Name="TodoistProjectBox" DisplayMemberPath="Display" IsEnabled="False" SelectionChanged="TodoistProject_Changed"/>
+                <TextBlock x:Name="TodoistStatus" Style="{StaticResource Hint}"/>
+                <Button x:Name="TodoistDisconnect" Content="Desconectar" HorizontalAlignment="Left" Margin="0,10,0,0"
+                        Visibility="Collapsed" Click="TodoistDisconnect_Click"/>
 
                 <!-- ========== Imagem ========== -->
                 <TextBlock Style="{StaticResource Section}" Text="Imagem"/>

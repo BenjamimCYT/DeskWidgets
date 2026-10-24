@@ -120,6 +120,9 @@
             <DockPanel Margin="11,9,10,9">
                 <DockPanel DockPanel.Dock="Top">
                     <TextBlock x:Name="NotesCount" DockPanel.Dock="Right" FontSize="11" Opacity="0.7" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="NotesSyncIcon" DockPanel.Dock="Right" Text="&#xE753;" FontFamily="{StaticResource IconFont}"
+                               FontSize="11" Opacity="0.65" Margin="0,0,6,0" VerticalAlignment="Center" Visibility="Collapsed"
+                               ToolTip="Sincronizado com o Todoist"/>
                     <TextBlock Text="Notas" FontSize="14" FontWeight="SemiBold"/>
                 </DockPanel>
                 <Grid Margin="0,7,0,0">
@@ -218,7 +221,8 @@
                             Style="{StaticResource GhostButton}" Padding="8,6" Click="NotesClose_Click" ToolTip="Fechar (Esc)"/>
                     <Button DockPanel.Dock="Right" Content="Limpar concluídos" FontSize="11.5" Margin="0,0,4,0"
                             Style="{StaticResource GhostButton}" Click="ClearDone_Click"/>
-                    <TextBlock Text="Notas" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="NotesTitle" Text="Notas" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis"/>
                 </DockPanel>
 
                 <Border DockPanel.Dock="Bottom" CornerRadius="8" Background="#22FFFFFF" Margin="0,10,0,0" Padding="10,5">

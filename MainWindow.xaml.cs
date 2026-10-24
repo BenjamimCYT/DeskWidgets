@@ -166,6 +166,9 @@ namespace DeskWidgets
                 _batteryKick.Start();
             })));
 
+            // Checklist sincronizada com o Todoist (se configurado). Não reordena enquanto você digita.
+            TodoistSync.Init(() => !NotesList.IsKeyboardFocusWithin);
+
             // Mouse 2.4 GHz mandou um pacote de bateria: atualiza na hora, sem esperar o timer
             VendorHidBattery.LevelReceived += (key, level) => Dispatcher.BeginInvoke(new Action(() => OnVendorLevel(key, level)));
 
@@ -230,6 +233,10 @@ namespace DeskWidgets
             TileWeather.Visibility = Vis(S.ShowWeather);
             TileClock.Visibility = Vis(S.ShowClock);
             TileCalendar.Visibility = Vis(S.ShowCalendar);
+
+            bool todoist = S.NotesSource == "todoist" && !string.IsNullOrEmpty(S.TodoistProjectId);
+            NotesSyncIcon.Visibility = Vis(todoist);
+            NotesTitle.Text = todoist ? S.TodoistProjectName : "Notas";
 
             ApplyZOrder();
             BuildCalendarHeader();
@@ -618,6 +625,7 @@ namespace DeskWidgets
 
         public void OpenNotes()
         {
+            TodoistSync.SyncNow(); // pega o que você escreveu no celular
             NotesOverlay.Visibility = Visibility.Visible;
             _allowFront = true;
             Activate();

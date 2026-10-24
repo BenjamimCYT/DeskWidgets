@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
 
 namespace DeskWidgets.Models
 {
@@ -53,6 +54,13 @@ namespace DeskWidgets.Models
         public bool ShowWeather { get; set; } = true;
         public bool ShowClock { get; set; } = true;
         public bool ShowCalendar { get; set; } = true;
+
+        // Notas: "local" ou "todoist"
+        public string NotesSource { get; set; } = "local";
+        public string TodoistToken { get; set; } = "";       // criptografado (DPAPI)
+        public string TodoistProjectId { get; set; } = "";
+        public string TodoistProjectName { get; set; } = "";
+        public List<string> TodoistPendingDeletes { get; set; } = new List<string>();
 
         // Bateria
         public List<string> HiddenDevices { get; set; } = new List<string>();
@@ -107,6 +115,13 @@ namespace DeskWidgets.Models
             get => _done;
             set { if (_done != value) { _done = value; OnChanged(); } }
         }
+
+        // Sincronização com o Todoist (vazios no modo local)
+        public string RemoteId { get; set; }
+        public string SyncedText { get; set; }
+        public bool SyncedDone { get; set; }
+        [JsonIgnore] public string TempId { get; set; }
+        [JsonIgnore] public bool SyncFailed { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnChanged([CallerMemberName] string name = null)

@@ -1,9 +1,12 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Navigation;
 using DeskWidgets.Helpers;
 using DeskWidgets.Models;
 using DeskWidgets.Services;
@@ -30,11 +33,14 @@ namespace DeskWidgets
                 .ToList();
 
             LoadFromSettings();
+            if (!string.IsNullOrEmpty(TodoistSync.Token)) _ = LoadTodoistProjectsAsync(TodoistSync.Token, silent: true);
 
             _main.DevicesUpdated += OnDevicesUpdated;
+            TodoistSync.StatusChanged += OnTodoistStatus;
             Closed += (s, e) =>
             {
                 _main.DevicesUpdated -= OnDevicesUpdated;
+                TodoistSync.StatusChanged -= OnTodoistStatus;
                 SettingsService.SaveNow();
                 ResourceSaver.Trim(); // libera a lista de fontes etc.
             };
@@ -75,6 +81,7 @@ namespace DeskWidgets
             WeatherBgCheck.IsChecked = S.WeatherTransparentTile;
 
             PixelArtCheck.IsChecked = S.ImagePixelArt;
+            UpdateTodoistUi();
 
             ShowClockCheck.IsChecked = S.ShowClock;
             ShowCalendarCheck.IsChecked = S.ShowCalendar;
@@ -427,6 +434,160 @@ namespace DeskWidgets
         {
             S.WeatherTransparentTile = WeatherBgCheck.IsChecked == true;
             Apply();
+        }
+
+        // ---------- Todoist ----------
+
+        private void Link_RequestNavigate(object sender, RequestNavigateEventArgs e)
+        {
+            try { Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true }); } catch { }
+            e.Handled = true;
+        }
+
+        private void OnTodoistStatus(string status)
+        {
+            if (!string.IsNullOrEmpty(status)) TodoistStatus.Text = status;
+        }
+
+        private void UpdateTodoistUi()
+        {
+            bool hasToken = !string.IsNullOrEmpty(S.TodoistToken);
+            TodoistDisconnect.Visibility = hasToken ? Visibility.Visible : Visibility.Collapsed;
+
+            if (S.NotesSource == "todoist" && !string.IsNullOrEmpty(S.TodoistProjectId))
+                TodoistStatus.Text = !string.IsNullOrEmpty(TodoistSync.LastStatus)
+                    ? TodoistSync.LastStatus
+                    : $"Conectado à lista “{S.TodoistProjectName}”.";
+            else if (hasToken)
+                TodoistStatus.Text = "Token salvo. Escolha a lista que vai aparecer no widget.";
+            else
+                TodoistStatus.Text = "Desconectado: a checklist fica só neste PC.";
+        }
+
+        private async Task LoadTodoistProjectsAsync(string token, bool silent)
+        {
+            try
+            {
+                var projects = await TodoistService.GetProjectsAsync(token);
+                _loading = true;
+                TodoistProjectBox.ItemsSource = projects;
+                TodoistProjectBox.SelectedItem = projects.FirstOrDefault(p => p.Id == S.TodoistProjectId);
+                TodoistProjectBox.IsEnabled = true;
+                _loading = false;
+            }
+            catch (Exception ex)
+            {
+                _loading = false;
+                if (!silent) throw;
+                SettingsService.Log(ex);
+            }
+        }
+
+        private async void TodoistConnect_Click(object sender, RoutedEventArgs e)
+        {
+            string token = TodoistTokenBox.Password.Trim();
+            if (token.Length == 0) token = TodoistSync.Token;
+            if (string.IsNullOrEmpty(token))
+            {
+                TodoistStatus.Text = "Cole o token do Todoist no campo acima.";
+                return;
+            }
+
+            TodoistStatus.Text = "Conectando…";
+            try
+            {
+                await LoadTodoistProjectsAsync(token, silent: false);
+                S.TodoistToken = Secret.Protect(token);
+                SettingsService.SaveSoon();
+                TodoistTokenBox.Clear();
+                TodoistDisconnect.Visibility = Visibility.Visible;
+                TodoistStatus.Text = S.NotesSource == "todoist"
+                    ? $"Conectado à lista “{S.TodoistProjectName}”."
+                    : "Conectado! Agora escolha a lista que vai aparecer no widget.";
+                if (S.NotesSource == "todoist") TodoistSync.Restart();
+            }
+            catch (TodoistAuthException)
+            {
+                TodoistStatus.Text = "Token inválido. Copie de novo em Configurações → Integrações → Desenvolvedor.";
+            }
+            catch (Exception ex)
+            {
+                SettingsService.Log(ex);
+                TodoistStatus.Text = "Sem conexão com o Todoist. Verifique a internet e tente de novo.";
+            }
+        }
+
+        private void TodoistProject_Changed(object sender, SelectionChangedEventArgs e)
+        {
+            if (_loading) return;
+            if (!(TodoistProjectBox.SelectedItem is TodoistProject p)) return;
+            if (S.NotesSource == "todoist" && p.Id == S.TodoistProjectId) return;
+
+            var notes = SettingsService.Notes;
+            bool wasTodoist = S.NotesSource == "todoist";
+
+            if (!wasTodoist && notes.Count > 0)
+            {
+                var r = MessageBox.Show(this,
+                    $"Você tem {notes.Count} nota(s) no widget.
+
+" +
+                    $"Sim: enviar para a lista “{p.Display}” do Todoist.
+" +
+                    "Não: guardar uma cópia de segurança e mostrar só as tarefas do Todoist.",
+                    "Conectar ao Todoist", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+
+                if (r == MessageBoxResult.Cancel)
+                {
+                    _loading = true;
+                    TodoistProjectBox.SelectedItem = null;
+                    _loading = false;
+                    return;
+                }
+                if (r == MessageBoxResult.No)
+                {
+                    SettingsService.BackupNotes();
+                    TodoistSync.ClearLocal();
+                }
+                // Sim: as notas sem id do Todoist são enviadas como tarefas novas
+            }
+            else if (wasTodoist)
+            {
+                TodoistSync.ClearLocal(); // trocou de lista: tira as tarefas da lista anterior (sem apagar no Todoist)
+            }
+
+            S.NotesSource = "todoist";
+            S.TodoistProjectId = p.Id;
+            S.TodoistProjectName = p.Display;
+            SettingsService.SaveSoon();
+            _main.ApplySettings();
+            TodoistStatus.Text = "Sincronizando…";
+            TodoistSync.Restart();
+        }
+
+        private void TodoistDisconnect_Click(object sender, RoutedEventArgs e)
+        {
+            var r = MessageBox.Show(this,
+                "Desconectar do Todoist?
+
+As tarefas que estão no widget continuam aqui como notas locais. Nada é apagado no Todoist.",
+                "Desconectar", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (r != MessageBoxResult.Yes) return;
+
+            TodoistSync.Detach();
+            S.NotesSource = "local";
+            S.TodoistToken = "";
+            S.TodoistProjectId = "";
+            S.TodoistProjectName = "";
+            SettingsService.SaveSoon();
+            TodoistSync.Restart();
+            _main.ApplySettings();
+
+            _loading = true;
+            TodoistProjectBox.ItemsSource = null;
+            TodoistProjectBox.IsEnabled = false;
+            _loading = false;
+            UpdateTodoistUi();
         }
 
         // ---------- imagem ----------

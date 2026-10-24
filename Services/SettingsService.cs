@@ -48,6 +48,7 @@ namespace DeskWidgets.Services
             }
             Current.HiddenDevices ??= new List<string>();
             Current.LastVendorBattery ??= new Dictionary<string, int>();
+            Current.TodoistPendingDeletes ??= new List<string>();
 
             try
             {
@@ -126,9 +127,26 @@ namespace DeskWidgets.Services
                 StartWithWindows = o.StartWithWindows,
                 Locked = o.Locked,
                 StartMenuShortcut = o.StartMenuShortcut,
+                NotesSource = o.NotesSource,
+                TodoistToken = o.TodoistToken,
+                TodoistProjectId = o.TodoistProjectId,
+                TodoistProjectName = o.TodoistProjectName,
+                TodoistPendingDeletes = o.TodoistPendingDeletes,
                 LastVendorBattery = o.LastVendorBattery
             };
             SaveSoon();
+        }
+
+        /// <summary>Guarda uma cópia das notas locais antes de trocar para o Todoist.</summary>
+        public static void BackupNotes()
+        {
+            try
+            {
+                Directory.CreateDirectory(Folder);
+                string path = Path.Combine(Folder, $"notas-backup-{DateTime.Now:yyyyMMdd-HHmmss}.json");
+                File.WriteAllText(path, JsonSerializer.Serialize(Notes.ToList(), Json));
+            }
+            catch (Exception ex) { Log(ex); }
         }
 
         public static void Log(Exception ex)
