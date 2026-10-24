@@ -79,7 +79,7 @@ O DeskWidgets foi feito para ficar parado quase o tempo todo:
 ## Requisitos
 
 - Windows 10 (versão 2004 ou mais recente) ou Windows 11, 64 bits
-- A versão **leve** da release precisa do [.NET 10 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/10.0); a versão **completa** roda sem instalar nada
+- Nada para instalar: baixe o `DeskWidgets.exe` da [release](https://github.com/BenjamimCYT/DeskWidgets/releases/latest) e abra
 
 Configurações e notas ficam salvas em `%AppData%\DeskWidgets\`.
 
@@ -101,7 +101,7 @@ dotnet run                 # testar
 build.bat                  # gerar o .exe em publish\
 ```
 
-O GitHub Actions (`.github/workflows/build.yml`) gera as duas versões a cada push na `main`.
+O GitHub Actions (`.github/workflows/build.yml`) gera o `.exe` a cada push na `main`.
 
 ```
 App.xaml(.cs)            instância única, bandeja do sistema
