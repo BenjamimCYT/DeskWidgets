@@ -49,6 +49,8 @@ namespace DeskWidgets.Services
             Current.HiddenDevices ??= new List<string>();
             Current.LastVendorBattery ??= new Dictionary<string, int>();
             Current.TodoistPendingDeletes ??= new List<string>();
+            Current.Widgets ??= new Dictionary<string, Models.WidgetLayout>();
+            Current.CustomThemes ??= new List<ThemeDef>();
 
             try
             {
@@ -110,30 +112,30 @@ namespace DeskWidgets.Services
             File.Move(tmp, path, true);
         }
 
-        /// <summary>Volta a aparência ao padrão, mantendo posição, cidade, imagem e dispositivos ocultos.</summary>
+        /// <summary>Volta cores, fontes e estilo ao padrão. Layout, notas, cidade, imagem e temas salvos continuam.</summary>
         public static void ResetAppearance()
         {
-            var o = Current;
-            Current = new AppSettings
-            {
-                Left = o.Left,
-                Top = o.Top,
-                City = o.City,
-                Latitude = o.Latitude,
-                Longitude = o.Longitude,
-                TemperatureUnit = o.TemperatureUnit,
-                ImagePath = o.ImagePath,
-                HiddenDevices = o.HiddenDevices,
-                StartWithWindows = o.StartWithWindows,
-                Locked = o.Locked,
-                StartMenuShortcut = o.StartMenuShortcut,
-                NotesSource = o.NotesSource,
-                TodoistToken = o.TodoistToken,
-                TodoistProjectId = o.TodoistProjectId,
-                TodoistProjectName = o.TodoistProjectName,
-                TodoistPendingDeletes = o.TodoistPendingDeletes,
-                LastVendorBattery = o.LastVendorBattery
-            };
+            var d = new AppSettings();
+            var c = Current;
+            c.PaletteName = d.PaletteName;
+            c.GradientTop = d.GradientTop;
+            c.GradientBottom = d.GradientBottom;
+            c.Accent = d.Accent;
+            c.TextColor = d.TextColor;
+            c.GradientDirection = d.GradientDirection;
+            c.TileOpacity = d.TileOpacity;
+            c.CornerRadius = d.CornerRadius;
+            c.BorderOpacity = d.BorderOpacity;
+            c.UiFont = d.UiFont;
+            c.AnimatedIcons = d.AnimatedIcons;
+            c.ClockFont = d.ClockFont;
+            c.ClockBold = d.ClockBold;
+            c.Clock24h = d.Clock24h;
+            c.ShowSeconds = d.ShowSeconds;
+            c.ClockShowDate = d.ClockShowDate;
+            c.DateCulture = d.DateCulture;
+            c.WeatherTransparentTile = d.WeatherTransparentTile;
+            foreach (var l in c.Widgets.Values) l.Theme = "";
             SaveSoon();
         }
 

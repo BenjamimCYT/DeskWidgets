@@ -1,0 +1,20 @@
+<local:WidgetBase x:Class="DeskWidgets.Widgets.CalendarWidget"
+                  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                  xmlns:local="clr-namespace:DeskWidgets.Widgets"
+                  TextElement.FontFamily="Segoe UI Variable Display, Segoe UI">
+    <DockPanel Margin="14,10,14,12">
+        <Grid DockPanel.Dock="Top" Margin="2,0,0,6">
+            <TextBlock x:Name="CalTitle" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"
+                       Cursor="Hand" ToolTip="Voltar para o mês atual" MouseLeftButtonUp="CalTitle_Click"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="&#xE76B;" FontFamily="{StaticResource IconFont}" FontSize="10" Style="{StaticResource GhostButton}"
+                        Padding="7,5" Click="Prev_Click" ToolTip="Mês anterior"/>
+                <Button Content="&#xE76C;" FontFamily="{StaticResource IconFont}" FontSize="10" Style="{StaticResource GhostButton}"
+                        Padding="7,5" Click="Next_Click" ToolTip="Próximo mês"/>
+            </StackPanel>
+        </Grid>
+        <UniformGrid x:Name="CalHeader" DockPanel.Dock="Top" Columns="7" Margin="0,0,0,4"/>
+        <UniformGrid x:Name="CalDays" Columns="7"/>
+    </DockPanel>
+</local:WidgetBase>

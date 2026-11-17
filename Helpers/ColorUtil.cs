@@ -23,7 +23,7 @@ namespace DeskWidgets.Helpers
 
         public static Color Parse(string hex, Color fallback) => TryParse(hex, out var c) ? c : fallback;
 
-        public static string ToHex(Color c) => $"#{c.R:X2}{c.G:X2}{c.B:X2}";
+        public static string ToHex(Color c) => c.A == 255 ? $"#{c.R:X2}{c.G:X2}{c.B:X2}" : $"#{c.A:X2}{c.R:X2}{c.G:X2}{c.B:X2}";
 
         public static SolidColorBrush Solid(Color c, double opacity = 1)
         {
@@ -44,15 +44,18 @@ namespace DeskWidgets.Helpers
         /// com alfa 0 o Windows deixaria o clique "atravessar" a janela.
         /// </summary>
         public static Brush Gradient(AppSettings s, double? opacityOverride = null)
+            => Gradient(s.GlobalTheme(), opacityOverride ?? s.TileOpacity, s.GradientDirection);
+
+        public static Brush Gradient(ThemeDef t, double opacity, string direction)
         {
-            double op = Math.Clamp(opacityOverride ?? s.TileOpacity, 0, 1);
-            var top = Parse(s.GradientTop, Color.FromRgb(0x3B, 0x35, 0xD6));
-            var bottom = Parse(s.GradientBottom, Colors.Black);
+            double op = Math.Clamp(opacity, 0, 1);
+            var top = Parse(t?.Top, Color.FromRgb(0x3B, 0x35, 0xD6));
+            var bottom = Parse(t?.Bottom, Colors.Black);
             top.A = (byte)Math.Max(1, Math.Round(top.A * op));
             bottom.A = (byte)Math.Max(1, Math.Round(bottom.A * op));
 
             Point start, end;
-            switch (s.GradientDirection)
+            switch (direction)
             {
                 case "Horizontal": start = new Point(0, 0.5); end = new Point(1, 0.5); break;
                 case "Diagonal": start = new Point(0, 0); end = new Point(1, 1); break;
@@ -66,6 +69,15 @@ namespace DeskWidgets.Helpers
             }, start, end);
             brush.Freeze();
             return brush;
+        }
+
+        /// <summary>Mistura duas cores (t = 0 → a, t = 1 → b).</summary>
+        public static Color Mix(Color a, Color b, double t)
+        {
+            t = Math.Clamp(t, 0, 1);
+            return Color.FromArgb(
+                (byte)(a.A + (b.A - a.A) * t), (byte)(a.R + (b.R - a.R) * t),
+                (byte)(a.G + (b.G - a.G) * t), (byte)(a.B + (b.B - a.B) * t));
         }
 
         public static Brush AlmostTransparent()

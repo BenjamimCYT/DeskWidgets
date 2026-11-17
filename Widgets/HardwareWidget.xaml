@@ -1,0 +1,13 @@
+<local:WidgetBase x:Class="DeskWidgets.Widgets.HardwareWidget"
+                  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                  xmlns:local="clr-namespace:DeskWidgets.Widgets"
+                  xmlns:c="clr-namespace:DeskWidgets.Controls">
+    <DockPanel Margin="14,10,14,12">
+        <DockPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+            <c:AnimatedIcon x:Name="Live" DockPanel.Dock="Right" Kind="Pulse" Width="13" Height="13" Brush="{DynamicResource AccentBrush}"/>
+            <TextBlock Text="Componentes" Style="{StaticResource WidgetTitle}"/>
+        </DockPanel>
+        <StackPanel x:Name="Rows"/>
+    </DockPanel>
+</local:WidgetBase>

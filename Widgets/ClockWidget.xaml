@@ -1,0 +1,18 @@
+<local:WidgetBase x:Class="DeskWidgets.Widgets.ClockWidget"
+                  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                  xmlns:local="clr-namespace:DeskWidgets.Widgets">
+    <Grid Margin="16,10,16,14">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Viewbox Stretch="Uniform" StretchDirection="Both" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock x:Name="ClockText" FontSize="80" FontWeight="Bold" Text="00:00"/>
+        </Viewbox>
+        <TextBlock x:Name="DateShort" Grid.Row="1" FontSize="14" HorizontalAlignment="Center" Opacity="0.8"/>
+        <TextBlock x:Name="DateLong" Grid.Row="2" FontSize="20" HorizontalAlignment="Center" Margin="0,4,0,0"
+                   TextTrimming="CharacterEllipsis"/>
+    </Grid>
+</local:WidgetBase>

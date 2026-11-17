@@ -15,7 +15,7 @@
     <RootNamespace>DeskWidgets</RootNamespace>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Version>1.2.0</Version>
+    <Version>2.0.0</Version>
     <Product>DeskWidgets</Product>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
 
@@ -29,6 +29,11 @@
 
   <ItemGroup>
     <Resource Include="Assets\app.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- WMI: temperaturas da zona térmica e sensores do LibreHardwareMonitor -->
+    <PackageReference Include="System.Management" Version="10.0.0" />
   </ItemGroup>
 
 </Project>
