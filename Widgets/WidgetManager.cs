@@ -15,6 +15,8 @@ namespace DeskWidgets.Widgets
 
         public static List<WidgetHost> Hosts { get; } = new List<WidgetHost>();
         public static event Action LayoutChanged;
+        /// <summary>Widgets que deram erro ao carregar (o resto continua funcionando).</summary>
+        public static List<string> FailedWidgets { get; } = new List<string>();
 
         private static bool _editMode;
 
@@ -31,23 +33,46 @@ namespace DeskWidgets.Widgets
 
         public static void Init()
         {
-            var widgets = new WidgetBase[]
+            // Cada widget é criado isolado: se um falhar, os outros abrem normalmente
+            var factories = new (string name, Func<WidgetBase> make)[]
             {
-                new ClockWidget(), new CalendarWidget(), new WeatherWidget(), new NotesWidget(),
-                new BatteryWidget(), new ImageWidget(), new MusicWidget(), new PomodoroWidget(), new HardwareWidget()
+                ("Relógio", () => new ClockWidget()), ("Calendário", () => new CalendarWidget()),
+                ("Clima", () => new WeatherWidget()), ("Notas", () => new NotesWidget()),
+                ("Bateria", () => new BatteryWidget()), ("Imagem", () => new ImageWidget()),
+                ("Música", () => new MusicWidget()), ("Pomodoro", () => new PomodoroWidget()),
+                ("Componentes", () => new HardwareWidget())
             };
 
-            Migrate(widgets);
+            var widgets = new List<WidgetBase>();
+            foreach (var (name, make) in factories)
+            {
+                try { widgets.Add(make()); }
+                catch (Exception ex) { SettingsService.Log(ex); FailedWidgets.Add(name); }
+            }
+
+            try { Migrate(widgets.ToArray()); }
+            catch (Exception ex) { SettingsService.Log(ex); }
             AnimatedIcon.Enabled = S.AnimatedIcons;
 
             foreach (var w in widgets)
             {
-                var host = new WidgetHost(w);
-                Hosts.Add(host);
-                host.LoadLayout();
-                EnsureOnScreen(host);
-                host.ApplySettings();
-                if (S.Layout(w.Id).Visible) host.Show();
+                WidgetHost host = null;
+                try
+                {
+                    host = new WidgetHost(w);
+                    host.LoadLayout();
+                    EnsureOnScreen(host);
+                    host.ApplySettings();
+                    Hosts.Add(host);
+                    if (S.Layout(w.Id).Visible) host.Show();
+                }
+                catch (Exception ex)
+                {
+                    SettingsService.Log(ex);
+                    FailedWidgets.Add(w.DisplayName);
+                    try { host?.Close(); } catch { }
+                    Hosts.Remove(host);
+                }
             }
         }
 

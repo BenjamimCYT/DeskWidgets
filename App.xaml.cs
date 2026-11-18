@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -13,6 +15,9 @@ namespace DeskWidgets
         private Mutex _mutex;
         private EventWaitHandle _showEvent;
         private const string ShowEventName = @"Local\DeskWidgets.Show";
+        private const string AckEventName = @"Local\DeskWidgets.ShowAck";
+        private EventWaitHandle _ackEvent;
+        private bool _starting = true;
         private System.Windows.Forms.NotifyIcon _tray;
         private SettingsWindow _settings;
 
@@ -21,10 +26,8 @@ namespace DeskWidgets
         protected override void OnStartup(StartupEventArgs e)
         {
             _mutex = new Mutex(true, @"Local\DeskWidgets.SingleInstance", out bool isFirst);
-            if (!isFirst)
+            if (!isFirst && !TakeOverFromRunningInstance())
             {
-                // Já está aberto (ex.: clicou no menu Iniciar): pede à instância aberta para mostrar as configurações
-                try { using var ev = EventWaitHandle.OpenExisting(ShowEventName); ev.Set(); } catch { }
                 _mutex.Dispose();
                 _mutex = null;
                 Shutdown();
@@ -32,11 +35,13 @@ namespace DeskWidgets
             }
 
             _showEvent = new EventWaitHandle(false, EventResetMode.AutoReset, ShowEventName);
+            _ackEvent = new EventWaitHandle(false, EventResetMode.AutoReset, AckEventName);
             var waiter = new Thread(() =>
             {
                 while (true)
                 {
                     _showEvent.WaitOne();
+                    _ackEvent.Set(); // "estou vivo": a nova instância pode fechar tranquila
                     Dispatcher.BeginInvoke(new Action(() => { WidgetManager.BringBackAll(); OpenSettings(); }));
                 }
             }, 64 * 1024) { IsBackground = true, Name = "show-signal" };
@@ -44,25 +49,118 @@ namespace DeskWidgets
 
             base.OnStartup(e);
 
-            DispatcherUnhandledException += (s, a) => { SettingsService.Log(a.Exception); a.Handled = true; };
+            DispatcherUnhandledException += (s, a) =>
+            {
+                SettingsService.Log(a.Exception);
+                a.Handled = true;
+                if (_starting) ShowStartupError(a.Exception);
+            };
+            AppDomain.CurrentDomain.UnhandledException += (s, a) =>
+            {
+                if (a.ExceptionObject is Exception ex) { SettingsService.Log(ex); ShowStartupError(ex); }
+            };
             TaskScheduler.UnobservedTaskException += (s, a) => { SettingsService.Log(a.Exception); a.SetObserved(); };
 
-            ResourceSaver.Apply();
-            SettingsService.Load();
+            try
+            {
+                ResourceSaver.Apply();
+                SettingsService.Load();
 
-            WidgetManager.Init();
-            CreateTray();
+                // A bandeja vem primeiro: mesmo que um widget falhe, o app continua acessível
+                CreateTray();
+                WidgetManager.Init();
 
-            // Checklist sincronizada com o Todoist (se configurado). Não reordena enquanto você digita.
-            TodoistSync.Init(() => WidgetManager.Get<NotesWidget>()?.IsEditing != true);
+                // Checklist sincronizada com o Todoist (se configurado). Não reordena enquanto você digita.
+                TodoistSync.Init(() => WidgetManager.Get<NotesWidget>()?.IsEditing != true);
 
-            var trim = new System.Windows.Threading.DispatcherTimer(System.Windows.Threading.DispatcherPriority.ApplicationIdle) { Interval = TimeSpan.FromSeconds(12) };
-            trim.Tick += (s, a) => { trim.Stop(); ResourceSaver.Trim(); };
-            trim.Start();
+                var trim = new System.Windows.Threading.DispatcherTimer(System.Windows.Threading.DispatcherPriority.ApplicationIdle) { Interval = TimeSpan.FromSeconds(12) };
+                trim.Tick += (s, a) => { trim.Stop(); ResourceSaver.Trim(); };
+                trim.Start();
 
-            // Mantém atalhos apontando para o .exe atual (caso ele tenha mudado de pasta)
-            if (SettingsService.Current.StartMenuShortcut) ShortcutService.Set(true);
-            if (StartupService.IsEnabled()) StartupService.Set(true);
+                // Mantém atalhos apontando para o .exe atual (caso ele tenha mudado de pasta)
+                if (SettingsService.Current.StartMenuShortcut) ShortcutService.Set(true);
+                if (StartupService.IsEnabled()) StartupService.Set(true);
+
+                if (WidgetManager.Hosts.Count == 0 || WidgetManager.FailedWidgets.Count > 0)
+                    Notify("DeskWidgets", WidgetManager.FailedWidgets.Count > 0
+                        ? "Alguns widgets não carregaram: " + string.Join(", ", WidgetManager.FailedWidgets) + ". Detalhes em %AppData%\\DeskWidgets\\erros.log"
+                        : "Nenhum widget carregou. Detalhes em %AppData%\\DeskWidgets\\erros.log");
+            }
+            catch (Exception ex)
+            {
+                SettingsService.Log(ex);
+                ShowStartupError(ex);
+            }
+            finally
+            {
+                _starting = false;
+            }
+        }
+
+        /// <summary>
+        /// Outra cópia já está aberta. Se for uma versão antiga ou se não responder (travada),
+        /// pergunta se pode fechá-la e assume o lugar. Retorna true se esta instância deve continuar.
+        /// </summary>
+        private bool TakeOverFromRunningInstance()
+        {
+            var me = Process.GetCurrentProcess();
+            var myVersion = typeof(App).Assembly.GetName().Version ?? new Version(0, 0);
+            var others = Process.GetProcessesByName(me.ProcessName).Where(p => p.Id != me.Id).ToList();
+
+            bool older = others.Any(p =>
+            {
+                try
+                {
+                    var fv = FileVersionInfo.GetVersionInfo(p.MainModule.FileName);
+                    return new Version(fv.FileMajorPart, fv.FileMinorPart, fv.FileBuildPart) < new Version(myVersion.Major, myVersion.Minor, Math.Max(0, myVersion.Build));
+                }
+                catch { return false; }
+            });
+
+            bool responded = false;
+            if (!older)
+            {
+                // Mesma versão: pede para ela mostrar as configurações e espera confirmar que está viva
+                try
+                {
+                    using var ack = new EventWaitHandle(false, EventResetMode.AutoReset, AckEventName);
+                    using var ev = EventWaitHandle.OpenExisting(ShowEventName);
+                    ev.Set();
+                    responded = ack.WaitOne(TimeSpan.FromSeconds(3));
+                }
+                catch { }
+                if (responded) return false;
+            }
+
+            string msg = older
+                ? "Uma versão anterior do DeskWidgets está aberta (ícone na bandeja).\n\nFechar a versão antiga e abrir esta?"
+                : "O DeskWidgets já está aberto, mas não respondeu.\n\nFechar a cópia aberta e iniciar de novo?";
+            var r = MessageBox.Show(msg, "DeskWidgets", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (r != MessageBoxResult.Yes) return false;
+
+            foreach (var p in others)
+            {
+                try { p.Kill(); p.WaitForExit(5000); } catch (Exception ex) { SettingsService.Log(ex); }
+            }
+            try { return _mutex.WaitOne(TimeSpan.FromSeconds(5)); }
+            catch (AbandonedMutexException) { return true; } // a cópia antiga foi fechada segurando o mutex: agora é nosso
+        }
+
+        private bool _errorShown;
+
+        private void ShowStartupError(Exception ex)
+        {
+            if (_errorShown) return;
+            _errorShown = true;
+            try
+            {
+                string text = "O DeskWidgets encontrou um erro ao iniciar:\n\n" + ex.GetType().Name + ": " + ex.Message +
+                              "\n\nO texto completo foi copiado para a área de transferência e salvo em %AppData%\\DeskWidgets\\erros.log." +
+                              "\nCole na conversa para eu corrigir.";
+                try { Clipboard.SetText(ex.ToString()); } catch { }
+                MessageBox.Show(text, "DeskWidgets", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            catch { }
         }
 
         private void CreateTray()
