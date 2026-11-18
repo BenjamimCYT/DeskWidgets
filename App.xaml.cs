@@ -226,6 +226,21 @@ namespace DeskWidgets
 
         public void OpenSettings()
         {
+            try { OpenSettingsCore(); }
+            catch (Exception ex)
+            {
+                SettingsService.Log(ex);
+                _settings = null;
+                try { Clipboard.SetText(ex.ToString()); } catch { }
+                MessageBox.Show("Não foi possível abrir as configurações:\n\n" + ex.GetType().Name + ": " +
+                    (ex.InnerException?.Message ?? ex.Message) +
+                    "\n\nO detalhe foi copiado para a área de transferência. Cole na conversa para eu corrigir.",
+                    "DeskWidgets", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void OpenSettingsCore()
+        {
             if (_settings == null)
             {
                 _settings = new SettingsWindow();

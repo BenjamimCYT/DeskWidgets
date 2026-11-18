@@ -250,6 +250,9 @@ namespace DeskWidgets.Controls
 
         private void Anim(IAnimatable target, DependencyProperty prop, AnimationTimeline a)
         {
+            // A mesma animação pode ser usada em duas propriedades (ex.: ScaleX e ScaleY);
+            // depois de congelada ela vira somente leitura, então cada uso ganha sua própria cópia.
+            if (a.IsFrozen) a = a.Clone();
             Timeline.SetDesiredFrameRate(a, 30); // metade do padrão: suave e leve
             if (a.CanFreeze) a.Freeze();
             _anims.Add((target, prop, a));
